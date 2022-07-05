@@ -1,12 +1,21 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
+using Microsoft.EntityFrameworkCore;
+using ContactsAPI.Controllers;
+using ContactsAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+
+// Add DB Context
+builder.Services.AddDbContext<ContactsDBContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionString"));
+});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -28,5 +37,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapContactEndpoints();
 
 app.Run();

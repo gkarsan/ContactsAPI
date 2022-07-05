@@ -1,0 +1,99 @@
+https://geeksarray.com/blog/create-mongodb-docker-image-and-connect-from-dot-net-core-app
+docker pull mongo
+docker pull mongo:4.4
+
+docker run -d -p 27017:27017 --name geeksarray-mongo mongo
+docker exec -it geeksarray-mongo /bin/bash
+mongo
+(mongosh)
+
+show databases
+use APIMongoStore
+db.createCollection('Products')
+db.Products.insertMany(
+[
+{Name:"Pomme",Price:2.1},
+{Name:"Poire",Price:2.3}])
+
+db.Products.insertMany([{Name:"Pomme",Price:2.1},{Name:"Poire",Price:2.3}])
+
+db.createUser(
+{
+   user:"myuser",
+   pwd:"mypassword",
+   roles:[{role:"readWrite",db:"APIMongoStore"}],
+   authenticationRestrictions:[{clientSource:["127.0.0.1","localIP"]}],
+   mechanisms:["SCRAM-SHA-1","SCRAM-SHA-256"]
+ }
+)
+
+connectionString:
+mongodb://myuser:mypassword@192.168.1.21:27017/APIMongoStore
+
+BLACKBEAST\SQLExpress
+--CREATE LOGIN [api]
+--    WITH PASSWORD = 'apiPass', DEFAULT_LANGUAGE = [us_english], DEFAULT_DATABASE=master;
+CREATE USER api for login api;
+sp_addrolemember db_owner,api
+CREATE LOGIN [api]
+    WITH PASSWORD = N'z5upm%NQv,j:a5_l{{ai4yikmsFT7_&#$!~<st|zz#q>zzyj', SID = 0x29E9D03806F05147B719E15855D3391B, DEFAULT_LANGUAGE = [us_english];
+
+Server=blackbeast\\sqlexpress;User ID=sa;Password=mYsAb@DpASSW0D;Database=ContactDB;Connect Timeout=5;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;
+
+ALTER LOGIN sa ENABLE ;  
+GO  
+ALTER LOGIN sa WITH PASSWORD = 'mYsAb@DpASSW0D' ;  
+GO 
+
+CREATE TABLE [dbo].[Products] (
+    [Id]   INT            IDENTITY(1,1),
+    [Name] NVARCHAR (MAX) NULL,
+    PRIMARY KEY CLUSTERED ([Id] ASC)
+);
+
+
+
+to allow sql login:
+Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL10.SQLEXPRESS\MSSQLServer
+LoginMode=2 (mixte)
+ou
+USE [master]
+GO
+EXEC xp_instance_regwrite N'HKEY_LOCAL_MACHINE', 
+     N'Software\Microsoft\MSSQLServer\MSSQLServer',
+     N'LoginMode', REG_DWORD, 2
+GO
+
+tô allow remote:
+Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL10.SQLEXPRESS\MSSQLServer\SuperSocketNetLib\Tcp
+enabled=1
+
+
+Microsoft.Data.SqlClient.SqlException: 'A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: SNI_PN11, error: 26 - Error Locating Server/Instance Specified)'
+
+System.InvalidOperationException: 'An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure' to the 'UseSqlServer' call.'
+
+prepare docker with sqlserver
+docker run -e ‘ACCEPT_EULA=Y’ -e ‘SA_PASSWORD=Str0ngPa$$w0rd’ -p 1433:1433 -d mcr.microsoft.com/mssql/server
+
+docker run -d -p 1433:1433 -e sa_password=My$eCurePwd123# -e ACCEPT_EULA=Y mcr.microsoft.com/mssql/server
+docker run --name mssqltrek-con1 -d -p 1433:1433 -e sa_password=My$eCurePwd123# -e ACCEPT_EULA=Y microsoft/mssql-server-windows-developer
+
+dockehub tocken
+063a1cdd-57ed-46ac-a54d-fd9d4d2847ed
+docker login -u dapcomdocker
+
+Questions:
+docker? 
+database sql, faut-il un docker avec sqlserver? 
+dans le même? 
+sqlexpress local ok?
+(gestion d'erreurs)?
+ok si 2 méthode un peu difféentes pour Contacts et Skills ?
+un peu de business logic?
+skill et contact ..o
+
+
+createCollection type ASPNet Core Web API
+authentication
+Dapcom (Dapcom029.onmicrosoft.com) ??
