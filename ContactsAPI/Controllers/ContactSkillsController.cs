@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ContactsAPI.Controllers
 {
-    public class ContactSkillsController : Controller
+    public class ContactSkillsController : ControllerBase
     {
         private readonly ILogger<ContactSkillsController> _logger;
         private readonly ContactsDBContext _context;

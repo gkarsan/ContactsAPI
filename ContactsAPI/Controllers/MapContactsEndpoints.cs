@@ -12,6 +12,7 @@ namespace ContactsAPI.Controllers
             // Get All
             routes.MapGet(routeRoot, async (ContactsDBContext db) =>
             {
+                
                 var list= await db.Contacts!.Include(contact => contact.Skills).ToListAsync();
                 
                 if (list!=null)
