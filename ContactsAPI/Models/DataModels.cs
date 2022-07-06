@@ -4,7 +4,25 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ContactsAPI.Models
     {
-    [Table("Contacts", Schema = "dbo")] //, Schema="api"
+
+    [NotMapped]
+    public class ContactNoChild {
+        [Key]
+        [Column("contactId")]
+        public int Id { get; set; }
+        [Required, MinLength(1, ErrorMessage = "Field cannot be empty."), MaxLength(255)]
+        public string Firstname { get; set; } = "";
+        [Required, MinLength(1, ErrorMessage = "Field cannot be empty."), MaxLength(255)]
+        public string Lastname { get; set; } = "";
+        public string Fullname { get; set; } = "";
+        public string Adderss { get; set; } = "";
+        public string Email { get; set; } = "";
+        public string MobilePhoneNumber { get; set; } = "";
+
+    }
+
+    [Table("Contacts")] //, Schema="api"
+       
     public class Contact
     {
         public Contact()
@@ -17,15 +35,11 @@ namespace ContactsAPI.Models
         public int Id { get; set; }
         [Required, MinLength(1, ErrorMessage = "Field cannot be empty."), MaxLength(255)]
         public string Firstname { get; set; } = "";
-        [Required]
+        [Required, MinLength(1, ErrorMessage = "Field cannot be empty."), MaxLength(255)]
         public string Lastname { get; set; } = "";
-        [Required]
         public string Fullname { get; set; } = "";
-        [Required]
         public string Adderss { get; set; } = "";
-        [Required]
         public string Email { get; set; } = "";
-        [Required]
         public string MobilePhoneNumber { get; set; } = "";
         public virtual ICollection<Skill> Skills { get; set; }
         public bool UpdateFrom(Contact c)
@@ -51,12 +65,20 @@ namespace ContactsAPI.Models
 
     }
 
+    [NotMapped]
+    public class ContactSkilsIds
+    {
+        public int ContactId { get; set; }
+        public int SkillId { get; set; }
+
+    }
+
     public class Skill
     {
-        public Skill()
+        /*public Skill()
         {
             this.Contacts = new HashSet<Contact>();
-        }
+        }*/
         [Key]
         [Column("SkillId")]
         public int Id { get; set; }
@@ -64,15 +86,20 @@ namespace ContactsAPI.Models
         public string Name { get; set; } = "";
         [Required]
         public int Level { get; set; }
-        public virtual ICollection<Contact> Contacts { get; set; }
+        //public virtual ICollection<Contact>? Contacts { get; set; }
         public bool UpdateFrom(Skill s)
         {
 
             if (s.Name != null)
                 this.Name = s.Name;
-
             //if (s.Level != null)
             this.Level = s.Level;
+            /*if(s.Contacts !=null)
+                foreach (Contact c in s.Contacts)
+                {
+                    this.Contacts!.Add(c);
+                }*/
+                 
 
             return true;
         }

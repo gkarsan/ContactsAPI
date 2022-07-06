@@ -1,75 +1,109 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ContactsAPI.Models;
 using ContactsAPI.Services;
 
 namespace ContactsAPI.Controllers
 {
-    public static class ContactEndpointsClass
+    [Route("[controller]")]
+    public class ContactsController : ControllerBase
     {
-        private const string routeRoot= "/api/Contact";
-        public static void MapContactEndpoints(this IEndpointRouteBuilder routes)
+        private readonly ILogger<ContactsController> _logger;
+        private readonly ContactsDBContext _context;
+
+        public ContactsController(ILogger<ContactsController> logger, ContactsDBContext context)
         {
-            routes.MapGet("/Contact", async (ContactsDBContext db) =>
-            {
-                return await db.Contacts!.ToListAsync();
-            })
-            .WithName("GetAllContacts")
-            .Produces<List<Contact>>(StatusCodes.Status200OK);
+            _logger = logger;
+            _context = context;
+        }
 
-            routes.MapGet(routeRoot+"/{id}", async (int Id, ContactsDBContext db) =>
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> GetAsync()
+        {
+            try
             {
-                return await db.Contacts!.FindAsync(Id)
-                    is Contact model
-                        ? Results.Ok(model)
-                        : Results.NotFound();
-            })
-            .WithName("GetContactById")
-            .Produces<Contact>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status404NotFound);
+                var list = await _context.Contacts!.Include(contact => contact.Skills).ToListAsync();
 
-            routes.MapPut(routeRoot + "/{id}", async (int Id, Contact contact, ContactsDBContext db) =>
+                if (list != null)
+                    return Ok(list);
+                else
+                    return NoContent();
+
+            }
+            catch (Exception e)
             {
-                var foundModel = await db.Contacts!.FindAsync(Id);
+                _logger.LogError(e.Message);
+                return Problem(e.Message);
 
-                if (foundModel is null)
+            }
+        }
+        [HttpGet("GetById")]
+        public async Task<IActionResult> GetByID(int id)
+        {
+            try
+            {
+                var foundModel = await _context.Contacts!.Include(contact => contact.Skills).FirstOrDefaultAsync(c => c.Id == id);
+                return foundModel
+                    is Contact
+                    ? Ok(foundModel)
+                    : NotFound(id);
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return Problem(e.Message);
+
+            }
+        }
+
+        [HttpPost("Add")]
+        public async Task<IActionResult> AddContact([FromBody] Contact c)
+        {
+            try
+            {
+                await _context.Contacts!.AddAsync(c);
+                await _context.SaveChangesAsync();
+                return Ok(c);
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message + ex.InnerException?.Message);
+            }
+
+        }
+
+        [HttpPut("Update")]
+        public async Task<IActionResult> Update([FromBody] Contact c)
+        {
+            try
+            {
+                var skill = await _context.Contacts!.FindAsync(c.Id); //TO ad include Skills
+                if (skill != null)
                 {
-                    return Results.NotFound();
-                }
-                //update model properties here
-                foundModel.UpdateFrom(contact);
-
-                await db.SaveChangesAsync();
-
-                return Results.NoContent();
-            })
-            .WithName("UpdateContact")
-            .Produces(StatusCodes.Status404NotFound)
-            .Produces(StatusCodes.Status204NoContent);
-
-            routes.MapPost("/Contact", async (Contact contact, ContactsDBContext db) =>
-            {
-                db.Contacts!.Add(contact);
-                await db.SaveChangesAsync();
-                return Results.Created($"/Contacts/{contact.Id}", contact);
-            })
-            .WithName("CreateContact")
-            .Produces<Contact>(StatusCodes.Status201Created);
-
-            routes.MapDelete("/Contact/{id}", async (int Id, ContactsDBContext db) =>
-            {
-                if (await db.Contacts!.FindAsync(Id) is Contact contact)
-                {
-                    db.Contacts.Remove(contact);
-                    await db.SaveChangesAsync();
-                    return Results.Ok(contact);
+                    skill.UpdateFrom(c);
                 }
 
-                return Results.NotFound();
-            })
-            .WithName("DeleteContact")
-            .Produces<Contact>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status404NotFound);
+                //context.Products.Update(p);
+                await _context.SaveChangesAsync();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message + ex.InnerException?.Message);
+            }
+        }
+
+        [HttpDelete("Delete")]
+        public async Task<IActionResult> DeleteByID(int id)
+        {
+            var product = await _context.Contacts!.FindAsync(id);
+            if (product != null)
+                _context.Contacts.Remove(product);
+            else
+                return NotFound();
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
     }
-
 }

@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ContactsAPI.Services
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class ContactsDBContext : DbContext
     {
         public ContactsDBContext(DbContextOptions<ContactsDBContext> options) : base(options)

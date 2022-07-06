@@ -3,7 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using ContactsAPI.Models;
 using ContactsAPI.Services;
 
-namespace MyRestApiVS22.Controllers
+
+namespace ContactsAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
@@ -18,36 +19,44 @@ namespace MyRestApiVS22.Controllers
             _logger = logger;
             _context = context;
         }
-
+        /// <summary>
+        /// EndPoint to get all Skills
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("GetAll")]
         public async Task<IActionResult> GetAsync()
-        {
-            _logger.Log(LogLevel.Debug, "Received GetAll request");
-            _context.Database.EnsureCreated();
-            var skills = await _context.Skills!.ToListAsync();
-            if (skills != null)
-                return Ok(skills);
-            else
-                return NoContent();
+        {   try
+            {
+                var skills = await _context.Skills!.ToListAsync();
+                
+                if (skills != null)
+                    return Ok(skills);
+                else
+                    return NoContent();
+
+            } catch(Exception e) {
+                _logger.LogError(e.Message);
+                return Problem(e.Message);
+            }
         }
         [HttpGet("GetById")]
         public async Task<IActionResult> GetByID(int id)
         {
-            _context.Database.EnsureCreated();
             var skill = await _context.Skills!.FindAsync(id);
             if (skill != null)
                 return Ok(skill);
             else
-                return NotFound();
+                return NotFound(id);
         }
+
         [HttpPost("Add")]
-        public async Task<IActionResult> AddPoduct(Skill s)
+        public async Task<IActionResult> AddSkill(Skill s)
         {
             try
             {
                 await _context.Skills!.AddAsync(s);
                 await _context.SaveChangesAsync();
-                return Ok(true);
+                return Ok(s);
             }
             catch (Exception ex)
             {
@@ -55,8 +64,9 @@ namespace MyRestApiVS22.Controllers
             }
 
         }
+
         [HttpPut("Update")]
-        public async Task<IActionResult> UpdatePoduct(Skill s)
+        public async Task<IActionResult> UpdateSkill(Skill s)
         {
             try
             {
@@ -66,7 +76,6 @@ namespace MyRestApiVS22.Controllers
                     skill.UpdateFrom(s);
                 }
 
-                //context.Products.Update(p);
                 await _context.SaveChangesAsync();
                 return NoContent();
             }
