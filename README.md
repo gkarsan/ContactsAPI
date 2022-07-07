@@ -1,1 +1,3 @@
 # ContactsAPI
+It’s a simple API, where a user can get a quick overview over all contacts resources
+like person, skills...
