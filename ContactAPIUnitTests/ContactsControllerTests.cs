@@ -83,8 +83,9 @@ namespace ContactAPIUnitTests
             Assert.That(objectResult.Value, Is.InstanceOf <List<Contact>>());
 
 
-            Contact c = new Contact { Firstname = "UnitTest", Lastname = "TestUser", Adderss = "TestAddress", Email = "", Fullname = "Unit Test", MobilePhoneNumber = "0", Skills = new List<Skill> { new Skill { Name = "UnitTesting", Level = 0 } } };
-            result = await controller.AddContact(c);
+            //Contact c = new Contact { Firstname = "UnitTest", Lastname = "TestUser", Adderss = "TestAddress", Email = "", Fullname = "Unit Test", MobilePhoneNumber = "0", Skills = new List<Skill> { new Skill { Name = "UnitTesting", Level = 0 } } };
+            ContactNoChild c = new ContactNoChild { Firstname = "UnitTest", Lastname = "TestUser", Adderss = "TestAddress", Email = "", Fullname = "Unit Test", MobilePhoneNumber = "0" };
+            result = await controller.AddAsync(c);
             Assert.That(result is IActionResult);
         }
     }

@@ -7,6 +7,18 @@ namespace ContactsAPI.Models
 
     [NotMapped]
     public class ContactNoChild {
+        public ContactNoChild() { }
+        public ContactNoChild(int id, string firstname, string lastname, string fullname, string adderss, string email, string mobilePhoneNumber)
+        {
+            Id = id;
+            Firstname = firstname;
+            Lastname = lastname;
+            Fullname = fullname;
+            Adderss = adderss;
+            Email = email;
+            MobilePhoneNumber = mobilePhoneNumber;
+        }
+
         [Key]
         [Column("contactId")]
         public int Id { get; set; }
@@ -19,6 +31,12 @@ namespace ContactsAPI.Models
         public string Email { get; set; } = "";
         public string MobilePhoneNumber { get; set; } = "";
 
+        public Contact toContact()
+        {
+             return new Contact { Id = this.Id, Fullname =this.Firstname, Lastname = this.Lastname , Adderss=this.Adderss,Email=this.Email,MobilePhoneNumber=this.MobilePhoneNumber };
+
+        }
+
     }
 
     [Table("Contacts")] //, Schema="api"
@@ -30,10 +48,23 @@ namespace ContactsAPI.Models
             this.Skills = new HashSet<Skill>();
         }
 
+        public Contact(ContactNoChild c)
+        {
+            Id = c.Id;
+            Firstname = c.Firstname;
+            Lastname = c.Lastname;
+            Fullname = c.Fullname;
+            Adderss = c.Adderss;
+            Email = c.Email;
+            MobilePhoneNumber = c.MobilePhoneNumber;
+            this.Skills = new HashSet<Skill>();
+        }
+
         [Key]
         [Column("contactId")]
         public int Id { get; set; }
         [Required, MinLength(1, ErrorMessage = "Field cannot be empty."), MaxLength(255)]
+
         public string Firstname { get; set; } = "";
         [Required, MinLength(1, ErrorMessage = "Field cannot be empty."), MaxLength(255)]
         public string Lastname { get; set; } = "";
@@ -75,10 +106,10 @@ namespace ContactsAPI.Models
 
     public class Skill
     {
-        /*public Skill()
+        public Skill()
         {
             this.Contacts = new HashSet<Contact>();
-        }*/
+        }
         [Key]
         [Column("SkillId")]
         public int Id { get; set; }
@@ -86,7 +117,7 @@ namespace ContactsAPI.Models
         public string Name { get; set; } = "";
         [Required]
         public int Level { get; set; }
-        //public virtual ICollection<Contact>? Contacts { get; set; }
+        public virtual ICollection<Contact> Contacts { get; set; }
         public bool UpdateFrom(Skill s)
         {
 
@@ -103,6 +134,17 @@ namespace ContactsAPI.Models
 
             return true;
         }
+    }
+    public class SkillNoChild
+    {
+        [Key]
+        [Column("SkillId")]
+        public int Id { get; set; }
+        [Required, MinLength(1, ErrorMessage = "Field cannot be empty."), MaxLength(255)]
+        public string Name { get; set; } = "";
+        [Required]
+        public int Level { get; set; }
+
     }
 }
 

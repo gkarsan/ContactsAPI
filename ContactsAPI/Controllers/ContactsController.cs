@@ -5,19 +5,34 @@ using ContactsAPI.Services;
 
 namespace ContactsAPI.Controllers
 {
+    /// <summary>
+    /// Contacts Controller endpoints
+    /// </summary>
+    [ApiController]
     [Route("[controller]")]
     public class ContactsController : ControllerBase
     {
         private readonly ILogger<ContactsController> _logger;
         private readonly ContactsDBContext _context;
 
+        /// <summary>
+        /// Contact Controller Constructor. Initialize logger and context
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <param name="context"></param>
         public ContactsController(ILogger<ContactsController> logger, ContactsDBContext context)
         {
             _logger = logger;
             _context = context;
         }
-
+        /// <summary>
+        /// Get Contacts List, including skills
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("GetAll")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllAsync()
         {
             try
@@ -32,21 +47,56 @@ namespace ContactsAPI.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                _logger.LogError(e.Message + e.InnerException?.Message);
                 return Problem(e.Message);
 
             }
         }
-        [HttpGet("GetById")]
-        public async Task<IActionResult> GetByID(int id)
+        /// <summary>
+        /// Get all contacts without skills
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("GetAllNoChild")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetAllNoChildAsync()
         {
             try
             {
-                var foundModel = await _context.Contacts!.Include(contact => contact.Skills).FirstOrDefaultAsync(c => c.Id == id);
-                return foundModel
+                var list = await _context.Contacts!.ToListAsync();
+                
+                if (list != null)
+                    return Ok(list);
+                else
+                    return NoContent();
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message + e.InnerException?.Message);
+                return Problem(e.Message);
+            }
+        }
+
+        /// <summary>
+        /// Get one contact details by id (including skills)
+        /// </summary>
+        /// <param name="id">Contact Id</param>
+        /// <returns></returns>
+        [HttpGet("GetById")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetByIdAsync(int id)
+        {
+            try
+            {
+                var foundContact = await _context.Contacts!.Include(contact => contact.Skills).FirstOrDefaultAsync(c => c.Id == id);
+                return foundContact
                     is Contact
-                    ? Ok(foundModel)
-                    : NotFound(id);
+                    ? Ok(foundContact)
+                    : NotFound($"No contact with id {id} was found.");
 
             }
             catch (Exception e)
@@ -57,53 +107,121 @@ namespace ContactsAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Add a new contact. 
+        /// </summary>
+        /// <param name="c">Contact</param>
+        /// <returns></returns>
         [HttpPost("Add")]
-        public async Task<IActionResult> AddContact([FromBody] Contact c)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> AddAsync([FromBody] ContactNoChild c)
         {
             try
             {
+                await _context.Contacts!.AddAsync(c.toContact());
+                await _context.SaveChangesAsync();
+                return Ok(c);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message + e.InnerException?.Message);
+                return Problem(e.Message);
+            }
+
+        }
+
+        /// <summary>
+        /// Add a new contact. Skills can also be included. 
+        /// </summary>
+        /// <param name="c">Contact</param>
+        /// <returns></returns>
+        [HttpPost("AddWithSkills")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> AddWithSkillsAsync([FromBody] Contact c)
+        {
+            try
+            {
+                // if same skill and level exists use existing id
+                /*foreach(Skill skill in c.Skills)
+                {
+                    // Include(skill => skill.Contacts).
+                    var existingskill = await _context.Skills!.FirstOrDefaultAsync(s=>s.Name == skill.Name & s.Level==skill.Level) ;
+                    if (existingskill is Skill)
+                        skill = existingskill;
+
+                }*/
                 await _context.Contacts!.AddAsync(c);
                 await _context.SaveChangesAsync();
                 return Ok(c);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                return Problem(ex.Message + ex.InnerException?.Message);
+                _logger.LogError(e.Message + e.InnerException?.Message);
+                return Problem(e.Message);
             }
-
         }
 
+        /// <summary>
+        /// Update an existing contact info (could include list of skills?)
+        /// </summary>
+        /// <param name="c"></param>
+        /// <returns></returns>
         [HttpPut("Update")]
-        public async Task<IActionResult> Update([FromBody] Contact c)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateAsync([FromBody] Contact c)
         {
             try
             {
-                var skill = await _context.Contacts!.FindAsync(c.Id); //TO ad include Skills
-                if (skill != null)
+                var contact = await _context.Contacts!.FindAsync(c.Id); //TO ad include Skills
+                if (contact != null)
                 {
-                    skill.UpdateFrom(c);
+                    contact.UpdateFrom(c);
                 }
+                else
+                    return NotFound($"Contact with {c.Id} not found.");
 
                 //context.Products.Update(p);
                 await _context.SaveChangesAsync();
-                return NoContent();
+                return Ok(c);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                return Problem(ex.Message + ex.InnerException?.Message);
+                _logger.LogError(e.Message + e.InnerException?.Message);
+                return Problem(e.Message);
             }
         }
 
+        /// <summary>
+        /// Delete a contact by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("Delete")]
-        public async Task<IActionResult> DeleteByID(int id)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeleteByIdAsync(int id)
         {
-            var product = await _context.Contacts!.FindAsync(id);
-            if (product != null)
-                _context.Contacts.Remove(product);
-            else
-                return NotFound();
-            await _context.SaveChangesAsync();
-            return NoContent();
+            try
+            {
+                var contact = await _context.Contacts!.FindAsync(id);
+                if (contact != null)
+                    _context.Contacts.Remove(contact);
+                else
+                    return NotFound($"Contact with {id} not found.");
+                await _context.SaveChangesAsync();
+                return Ok($"Contact with {id} removed.");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message + e.InnerException?.Message);
+                return Problem(e.Message);
+            }
+
         }
     }
 }

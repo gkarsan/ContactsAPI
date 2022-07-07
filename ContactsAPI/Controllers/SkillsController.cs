@@ -6,6 +6,9 @@ using ContactsAPI.Services;
 
 namespace ContactsAPI.Controllers
 {
+    /// <summary>
+    /// Skill Controller
+    /// </summary>
     [ApiController]
     [Route("[controller]")]
     public class SkillsController : ControllerBase
@@ -14,18 +17,55 @@ namespace ContactsAPI.Controllers
         private readonly ILogger<SkillsController> _logger;
         private readonly ContactsDBContext _context;
 
+        /// <summary>
+        /// Contact Controller Constructor. Initialize logger and context
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <param name="context"></param>
         public SkillsController(ILogger<SkillsController> logger, ContactsDBContext context)
         {
             _logger = logger;
             _context = context;
         }
+
         /// <summary>
-        /// EndPoint to get all Skills
+        /// Get all skills List, with related contacts
         /// </summary>
         /// <returns></returns>
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAsync()
-        {   try
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetAllAsync()
+        {
+            try
+            {
+                var skills = await _context.Skills!.Include(skill => skill.Contacts).ToListAsync();
+
+                if (skills != null)
+                    return Ok(skills);
+                else
+                    return NoContent();
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message + e.InnerException?.Message);
+                return Problem(e.Message);
+            }
+        }
+
+        /// <summary>
+        /// Get all skills List, without related contacts
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("GetAllNoChild")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetAllNoChildAsync()
+        {
+            try
             {
                 var skills = await _context.Skills!.ToListAsync();
                 
@@ -35,22 +75,46 @@ namespace ContactsAPI.Controllers
                     return NoContent();
 
             } catch(Exception e) {
-                _logger.LogError(e.Message);
+                _logger.LogError(e.Message + e.InnerException?.Message);
                 return Problem(e.Message);
             }
         }
+
+        /// <summary>
+        /// Get one skill details by id 
+        /// </summary>
+        /// <param name="id">Skill id</param>
+        /// <returns></returns>
         [HttpGet("GetById")]
-        public async Task<IActionResult> GetByID(int id)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetByIdAsync(int id)
         {
-            var skill = await _context.Skills!.FindAsync(id);
-            if (skill != null)
-                return Ok(skill);
-            else
-                return NotFound(id);
+            try
+            {
+                var skill = await _context.Skills!.FindAsync(id);
+                if (skill != null)
+                    return Ok(skill);
+                else
+                    return NotFound($"No skill with id {id} was found.");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message + e.InnerException?.Message);
+                return Problem(e.Message);
+            }
         }
 
+        /// <summary>
+        /// Add a new skill.  
+        /// </summary>
+        /// <param name="s">Skill</param>
+        /// <returns></returns>
         [HttpPost("Add")]
-        public async Task<IActionResult> AddSkill(Skill s)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> AddAsync(Skill s)
         {
             try
             {
@@ -58,15 +122,24 @@ namespace ContactsAPI.Controllers
                 await _context.SaveChangesAsync();
                 return Ok(s);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                return Problem(ex.Message + ex.InnerException?.Message);
+                _logger.LogError(e.Message + e.InnerException?.Message);
+                return Problem(e.Message);
             }
 
         }
 
+        /// <summary>
+        /// Update an existing skill
+        /// </summary>
+        /// <param name="s">Skill</param>
+        /// <returns></returns>
         [HttpPut("Update")]
-        public async Task<IActionResult> UpdateSkill(Skill s)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateAsync(Skill s)
         {
             try
             {
@@ -75,26 +148,45 @@ namespace ContactsAPI.Controllers
                 {
                     skill.UpdateFrom(s);
                 }
+                else
+                    return NotFound($"Skill not found.");
 
                 await _context.SaveChangesAsync();
-                return NoContent();
+                return Ok(s);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                return Problem(ex.Message + ex.InnerException?.Message);
+                _logger.LogError(e.Message + e.InnerException?.Message);
+                return Problem(e.Message);
             }
         }
 
+        /// <summary>
+        /// Delete a skill by id
+        /// </summary>
+        /// <param name="id">Skill id</param>
+        /// <returns></returns>
         [HttpDelete("Delete")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteByID(int id)
         {
-            var product = await _context.Skills!.FindAsync(id);
-            if (product != null)
-                _context.Skills.Remove(product);
-            else
-                return NotFound();
-            await _context.SaveChangesAsync();
-            return NoContent();
+            try
+            {
+                var product = await _context.Skills!.FindAsync(id);
+                if (product != null)
+                    _context.Skills.Remove(product);
+                else
+                    return NotFound($"Skill with {id} not found.");
+                await _context.SaveChangesAsync();
+                return Ok($"Contact with {id} removed.");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message + e.InnerException?.Message);
+                return Problem(e.Message);
+            }
         }
     }
 
