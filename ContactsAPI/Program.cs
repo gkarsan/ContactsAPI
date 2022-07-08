@@ -2,11 +2,9 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
 using Microsoft.EntityFrameworkCore;
-using ContactsAPI.Controllers;
 using ContactsAPI.Services;
 using System.Text.Json.Serialization;
 using Microsoft.OpenApi.Models;
-using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,17 +40,14 @@ builder.Services.AddSwaggerGen(c =>
             Contact = new OpenApiContact
             {
                 Name = "Daniel Perret",
-                Email = "dapcom@bluewin.ch"
+                Email = "dapcom@bluewin.ch",
+                Url = new Uri(@"https://github.com/gkarsan/ContactsAPI")
             }
         });
         var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
         var xmlPath = Path.Combine(AppContext.BaseDirectory,xmlFile);
         c.IncludeXmlComments(xmlPath);
     });
-
-
-   
-    
 
 var app = builder.Build();
 

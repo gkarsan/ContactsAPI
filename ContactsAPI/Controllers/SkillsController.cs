@@ -93,7 +93,8 @@ namespace ContactsAPI.Controllers
         {
             try
             {
-                var skill = await _context.Skills!.FindAsync(id);
+                var skill = await _context.Skills!.Include(skill => skill.Contacts).FirstOrDefaultAsync(s=>s.Id==id);
+                //var skill = await _context.Skills!.FindAsync(id);
                 if (skill != null)
                     return Ok(skill);
                 else
@@ -101,7 +102,7 @@ namespace ContactsAPI.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message + e.InnerException?.Message);
+                _logger.LogError($"{e.Message} {e.InnerException?.Message}");
                 return Problem(e.Message);
             }
         }

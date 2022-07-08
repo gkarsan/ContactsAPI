@@ -5,42 +5,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace ContactsAPI.Models
     {
 
-    [NotMapped]
-    public class ContactNoChild {
-        public ContactNoChild() { }
-        public ContactNoChild(int id, string firstname, string lastname, string fullname, string adderss, string email, string mobilePhoneNumber)
-        {
-            Id = id;
-            Firstname = firstname;
-            Lastname = lastname;
-            Fullname = fullname;
-            Adderss = adderss;
-            Email = email;
-            MobilePhoneNumber = mobilePhoneNumber;
-        }
-
-        [Key]
-        [Column("contactId")]
-        public int Id { get; set; }
-        [Required, MinLength(1, ErrorMessage = "Field cannot be empty."), MaxLength(255)]
-        public string Firstname { get; set; } = "";
-        [Required, MinLength(1, ErrorMessage = "Field cannot be empty."), MaxLength(255)]
-        public string Lastname { get; set; } = "";
-        public string Fullname { get; set; } = "";
-        public string Adderss { get; set; } = "";
-        public string Email { get; set; } = "";
-        public string MobilePhoneNumber { get; set; } = "";
-
-        public Contact toContact()
-        {
-             return new Contact { Id = this.Id, Fullname =this.Firstname, Lastname = this.Lastname , Adderss=this.Adderss,Email=this.Email,MobilePhoneNumber=this.MobilePhoneNumber };
-
-        }
-
-    }
-
+    /// <summary>
+    /// Data model for table Contacts
+    /// </summary>
     [Table("Contacts")] //, Schema="api"
-       
     public class Contact
     {
         public Contact()
@@ -73,9 +41,9 @@ namespace ContactsAPI.Models
         public string Email { get; set; } = "";
         public string MobilePhoneNumber { get; set; } = "";
         public virtual ICollection<Skill> Skills { get; set; }
-        public bool UpdateFrom(Contact c)
+        public bool UpdateFrom(ContactNoChild c)
         {
-
+            this.Id = c.Id;
             if (c.Firstname != null)
                 this.Firstname = c.Firstname;
             if (c.Lastname != null)
@@ -88,14 +56,48 @@ namespace ContactsAPI.Models
                 this.Email = c.Email;
             if (c.MobilePhoneNumber != null)
                 this.MobilePhoneNumber = c.MobilePhoneNumber;
-            if (c.Skills != null)
-                this.Skills = c.Skills; //TODO
 
             return true;
         }
 
     }
 
+    /// <summary>
+    /// Model for a contact without the associated links, not used for database model, but in some api input
+    /// </summary>
+    // TODO use inheritence
+    [NotMapped]
+    public class ContactNoChild
+    {
+        public ContactNoChild() { }
+        public ContactNoChild(int id, string firstname, string lastname, string fullname, string adderss, string email, string mobilePhoneNumber)
+        {
+            Id = id;
+            Firstname = firstname;
+            Lastname = lastname;
+            Fullname = fullname;
+            Adderss = adderss;
+            Email = email;
+            MobilePhoneNumber = mobilePhoneNumber;
+        }
+
+        public int Id { get; set; }
+        public string Firstname { get; set; } = "";
+        public string Lastname { get; set; } = "";
+        public string Fullname { get; set; } = "";
+        public string Adderss { get; set; } = "";
+        public string Email { get; set; } = "";
+        public string MobilePhoneNumber { get; set; } = "";
+
+        public Contact toContact()
+        {
+            return new Contact { Id = this.Id, Firstname = this.Firstname, Lastname = this.Lastname, Fullname = this.Fullname, Adderss = this.Adderss, Email = this.Email, MobilePhoneNumber = this.MobilePhoneNumber };
+        }
+    }
+
+    /// <summary>
+    /// Represent a link between a contact and a skill. Contains only Ids
+    /// </summary>
     [NotMapped]
     public class ContactSkilsIds
     {
@@ -104,8 +106,15 @@ namespace ContactsAPI.Models
 
     }
 
+    /// <summary>
+    /// Model fo skills
+    /// </summary>
+    [Table("Skills")] //, Schema="api"
     public class Skill
     {
+        /// <summary>
+        /// Creator
+        /// </summary>
         public Skill()
         {
             this.Contacts = new HashSet<Contact>();
@@ -118,23 +127,25 @@ namespace ContactsAPI.Models
         [Required]
         public int Level { get; set; }
         public virtual ICollection<Contact> Contacts { get; set; }
+
+        /// <summary>
+        /// Update skill with another skill values (except the id) 
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns>bool</returns>
         public bool UpdateFrom(Skill s)
         {
-
             if (s.Name != null)
                 this.Name = s.Name;
-            //if (s.Level != null)
             this.Level = s.Level;
-            /*if(s.Contacts !=null)
-                foreach (Contact c in s.Contacts)
-                {
-                    this.Contacts!.Add(c);
-                }*/
-                 
-
             return true;
         }
     }
+
+    /// <summary>
+    /// Model for a skill without related clients
+    /// </summary>
+    [NotMapped]
     public class SkillNoChild
     {
         [Key]

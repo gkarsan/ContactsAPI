@@ -16,7 +16,7 @@ namespace ContactsAPI.Controllers
         private readonly ContactsDBContext _context;
 
         /// <summary>
-        /// Contact Controller Constructor. Initialize logger and context
+        /// Contact Controller Constructor. Initialize logger and dbcontext
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="context"></param>
@@ -25,6 +25,7 @@ namespace ContactsAPI.Controllers
             _logger = logger;
             _context = context;
         }
+
         /// <summary>
         /// Get Contacts List, including skills
         /// </summary>
@@ -52,6 +53,7 @@ namespace ContactsAPI.Controllers
 
             }
         }
+
         /// <summary>
         /// Get all contacts without skills
         /// </summary>
@@ -119,9 +121,11 @@ namespace ContactsAPI.Controllers
         {
             try
             {
-                await _context.Contacts!.AddAsync(c.toContact());
+                //we retrieve a full contact so we can return it with it's id updated
+                Contact contact = c.toContact();
+                await _context.Contacts!.AddAsync(contact);
                 await _context.SaveChangesAsync();
-                return Ok(c);
+                return Ok(contact);
             }
             catch (Exception e)
             {
@@ -143,7 +147,7 @@ namespace ContactsAPI.Controllers
         {
             try
             {
-                // if same skill and level exists use existing id
+                // if same skill and level exists use existing skill id instead of creating one
                 /*foreach(Skill skill in c.Skills)
                 {
                     // Include(skill => skill.Contacts).
@@ -164,15 +168,15 @@ namespace ContactsAPI.Controllers
         }
 
         /// <summary>
-        /// Update an existing contact info (could include list of skills?)
+        /// Update an existing contact info 
         /// </summary>
-        /// <param name="c"></param>
+        /// <param name="c">Contact</param>
         /// <returns></returns>
         [HttpPut("Update")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> UpdateAsync([FromBody] Contact c)
+        public async Task<IActionResult> UpdateAsync([FromBody] ContactNoChild c)
         {
             try
             {

@@ -4,9 +4,16 @@ using ContactsAPI.Services;
 
 namespace ContactsAPI.Controllers
 {
+    /// <summary>
+    /// Endpoint sclass for Contact (Not used, keep fo doc)
+    /// </summary>
     public static class ContactEndpointsClass
     {
         private const string routeRoot= "/api/Contacts";
+        /// <summary>
+        /// Constuctor
+        /// </summary>
+        /// <param name="routes"></param>
         public static void MapContactEndpoints(this IEndpointRouteBuilder routes)
         {
             // Get All
@@ -39,17 +46,17 @@ namespace ContactsAPI.Controllers
             .Produces(StatusCodes.Status404NotFound);
 
             // Update
-            routes.MapPut(routeRoot + "/{Id}", async (int Id, Contact contact, ContactsDBContext db) =>
+            routes.MapPut(routeRoot + "/{Id}", async (int Id, ContactNoChild contact, ContactsDBContext db) =>
             {
-                var foundModel = await db.Contacts!.FindAsync(Id);
-                var foundModel2 = await db.Contacts!.Include(contact => contact.Skills).FirstOrDefaultAsync(c => c.Id == Id);
+                var foundContact = await db.Contacts!.FindAsync(Id);
+                var foundContact2 = await db.Contacts!.Include(contact => contact.Skills).FirstOrDefaultAsync(c => c.Id == Id);
 
-                if (foundModel is null)
+                if (foundContact is null)
                 {
                     return Results.NotFound();
                 }
                 //update model properties here
-                foundModel.UpdateFrom(contact);
+                foundContact.UpdateFrom(contact);
 
                 await db.SaveChangesAsync();
 

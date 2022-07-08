@@ -5,19 +5,34 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ContactsAPI.Controllers
 {
+    /// <summary>
+    /// Contacts-Skills Controller endpoints
+    /// </summary>
+    [ApiController]
     [Route("[controller]")]
     public class ContactSkillsController : ControllerBase
     {
         private readonly ILogger<ContactSkillsController> _logger;
         private readonly ContactsDBContext _context;
-
+        /// <summary>
+        /// Contoler creator. Initialize logger and context
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <param name="context"></param>
         public ContactSkillsController(ILogger<ContactSkillsController> logger, ContactsDBContext context)
         {
             _logger = logger;
             _context = context;
         }
 
+        /// <summary>
+        /// Get list of contacts-skills relations. Return links between Contacts and Skills
+        /// </summary>
+        /// <returns>List of {contactID,skillId}</returns>
         [HttpGet("GetAll")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAsync()
         {
             try
@@ -52,24 +67,31 @@ namespace ContactsAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// link a contact with a skill
+        /// </summary>
+        /// <param name="idContact">Contact Id</param>
+        /// <param name="idSkill">Skill Id</param>
+        /// <returns></returns>
         [HttpPost("Add")]
-        public async Task<IActionResult> AddAsync(int idUser, int idSkill)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> AddAsync(int idContact, int idSkill)
         {
             try {
                 var skill = await _context.Skills!.FindAsync(idSkill);
                 if (!(skill is Skill))
                     return Problem(detail: $"Skill {idSkill} not found.", statusCode: StatusCodes.Status404NotFound);
 
-                var contact = await _context.Contacts!.FindAsync(idUser);
+                var contact = await _context.Contacts!.FindAsync(idContact);
 
                 if (!(contact is Contact))
-                    return Problem(detail: "Contact not found.", statusCode: StatusCodes.Status404NotFound);
+                    return Problem(detail: $"Contact {idContact} not found.", statusCode: StatusCodes.Status404NotFound);
             
                 contact.Skills.Add(skill);
                 await _context.SaveChangesAsync();
             
-                return contact
-                    is Contact ? Ok(contact) : NoContent();
+                return Ok(contact);
             }
             catch (Exception e)
             {
@@ -78,7 +100,15 @@ namespace ContactsAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// link a contact with a skill (providing a new skill)
+        /// </summary>
+        /// <param name="idUser"></param>
+        /// <param name="skill"></param>
+        /// <returns></returns>
         [HttpPost("AddWithSkill")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> AddSkillToUser(int idUser, [FromBody] Skill skill)
         {
             try
@@ -95,8 +125,7 @@ namespace ContactsAPI.Controllers
                 contact.Skills.Add(skill);
                 await _context.SaveChangesAsync();
 
-                return contact
-                    is Contact ? Ok(contact) : NoContent();
+                return Ok(contact);
 
             }
             catch (Exception e)
@@ -106,7 +135,16 @@ namespace ContactsAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Delete a relation between a contact and a skill
+        /// </summary>
+        /// <param name="idContact">Contact Id</param>
+        /// <param name="idSkill">Skill Id</param>
+        /// <returns></returns>
         [HttpDelete("Delete")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteByIdAsync(int idContact,int idSkill)
         {
             try {
