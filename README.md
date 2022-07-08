@@ -56,7 +56,7 @@ Entry points
 		in /ContactSkills
 	Not using embedded entrypoints (like /Contact/{id}/Skills/Add
 		just because I am not used to it, but it could have been better approach, but more confusing to code for me
-	I tryed to cover many aspects I was new to (Swagger doc, Code first approach with EF, setting up UnitTest in VS for API Web), 
+	I tried to cover many aspects I was new to (Swagger doc, Code first approach with EF, setting up UnitTest in VS for API Web), 
 	giving me less time to code the endpoints logic more cleanly	
 	
 # Test data sample
