@@ -122,6 +122,7 @@ namespace ContactsAPI.Controllers
         {
             try
             {
+                //checking first if a contact with same name already exists
                 var existingContact = await _context.Contacts!.Include(contact => contact.Skills)
                     .FirstOrDefaultAsync(contact => contact.Firstname == c.Firstname & contact.Lastname== c.Lastname );
                 if (existingContact is Contact) 

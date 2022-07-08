@@ -119,6 +119,11 @@ namespace ContactsAPI.Controllers
         {
             try
             {
+                //checking first if a skill with same name and lefel already exists
+                var existingSkill = await _context.Skills!.FirstOrDefaultAsync(skill => skill.Name == s.Name & skill.Level == s.Level);
+                if (existingSkill is Skill)
+                    return BadRequest($"A skill with same name and level alerrady exists: {existingSkill!.Id}.");
+
                 await _context.Skills!.AddAsync(s);
                 await _context.SaveChangesAsync();
                 return Ok(s);
