@@ -6,7 +6,7 @@ like person, skills...
 The api uses MS SQL Server database. Before running the first time, ensure the connection string in appsettings.json is set up right for the situation.
 Currerntly, if running in docker, it can't use (localdb) and need path to the server, even if running on local. If running in a windows system with local MS SQL Server or Express, it can work with locladb
 
-# github: 
+# [github](https://github.com/gkarsan/ContactsAPI)
 
 # API Content
 It has 3 controllers: Contacts, Skills and ContactSkills
@@ -35,6 +35,7 @@ Entry points
 		
 # Test data sample
 Add Contact (without skill)
+```
 {
   "id": 0,
   "firstname": "John",
@@ -44,7 +45,9 @@ Add Contact (without skill)
   "email": "john@somewhee.com",
   "mobilePhoneNumber": "+12345"
 }
+```
 Add Contact with skills (id is ignored at creation and can be omited)
+```
 {
   "id": 0,
   "firstname": "John",
@@ -66,7 +69,9 @@ Add Contact with skills (id is ignored at creation and can be omited)
     }
   ]
 }
+```
 Update contact (use existing id from creation)
+```
 {
   "id": 27,
   "firstname": "John",
@@ -76,6 +81,7 @@ Update contact (use existing id from creation)
   "email": "john@somewhee.com",
   "mobilePhoneNumber": "+12345"
 }
+```
 		
 # Notes
 Developped with Visual Studio 22
