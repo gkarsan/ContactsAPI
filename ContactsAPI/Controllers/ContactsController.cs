@@ -123,11 +123,9 @@ namespace ContactsAPI.Controllers
             try
             {
                 //checking first if a contact with same name already exists
-                var existingContact = await _context.Contacts!.Include(contact => contact.Skills)
-                    .FirstOrDefaultAsync(contact => contact.Firstname == c.Firstname & contact.Lastname== c.Lastname );
+                var existingContact = await _context.Contacts!.FirstOrDefaultAsync(contact => contact.Firstname == c.Firstname & contact.Lastname== c.Lastname );
                 if (existingContact is Contact) 
                    return BadRequest($"A contact same name alerrady exists: {existingContact!.Id}.");
-
 
                 //we retrieve the updated contact so we can return it with it's id updated
                 Contact contact = c.toContact();
