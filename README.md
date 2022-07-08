@@ -3,22 +3,23 @@ It’s a simple API, where a user can get a quick overview over all contacts res
 like person, skills...
 
 # Initial Project Setup
-The api uses MS SQL Server database. Before running the first time, ensure the connection string in appsettings.json is set up right for the situation.
+The api uses MS SQL Server database. 
+Before running the first time, ensure the connection string in appsettings.json is set up right for the situation.
 Currerntly, if running in docker, it can't use (localdb) and need path to the server, even if running on local. If running in a windows system with local MS SQL Server or Express, it can work with locladb
-a database called ContactDB is ceated the first time, so use need to be authorized to create database
-Default connection string if run in IISExperss on local:
+Database : ContactDB (or as mentioned in the connectionstring in parameter InitialCataglog
+it is ceated the first time, so use need to be authorized to create database
+Sample connection string if run in IISExperss on local:
 ```
   "ConnectionStrings": {
     "ConnectionString": "Server=(localdb)\\MSSQLLocalDB;Initial Catalog=ContactDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False"
   },
 ```
-If run in Docker or to an extenal server using sql user:
+sample If run in Docker and/or to an extenal sqlexpress server using sql user:
 ```
   "ConnectionStrings": {
     "ConnectionString": "Server=hostserver\\sqlexpress;User ID=sa;Password=mYsAb@DpASSW0D;Database=ContactDB;Connect Timeout=5;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;"
   },
 ```
-
 
 # [github](https://github.com/gkarsan/ContactsAPI)
 
