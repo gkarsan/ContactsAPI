@@ -15,7 +15,6 @@ namespace ContactsAPIxUnitTest
 {
     public class ContactAPIUnitTests : IDisposable
     {
-        private WebApplication? app;
         private ContactsDBContext? dbContext;
         private ILogger<ContactsController>? ilog;
 
@@ -26,74 +25,18 @@ namespace ContactsAPIxUnitTest
 
         }
 
-        private void RunApp()
-        {
-            //This is same as the initialization done in Statup.cs in the API. not sure how to run it
-            string[] args = new string[] { };
-            var builder = WebApplication.CreateBuilder(args);
-
-            // Add services to the container.
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
-
-            // Add DB Context
-            builder.Services.AddDbContext<ContactsDBContext>(options =>
-            {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionString"));
-            });
-
-            builder.Services.AddControllers();
-
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-
-            app = builder.Build();
-
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
-
-            app.UseHttpsRedirection();
-
-            app.UseAuthentication();
-            app.UseAuthorization();
-
-            app.MapControllers();
-
-            // Test ussing MapEndPoint rather than controller
-            //app.MapContactEndpoints();
-
-            app.RunAsync();
-        }
         public void Dispose()
         {
             Console.WriteLine("Inside CleanUp or Dispose method");
         }
 
         [Fact]
-        public void TestDBContext()
-        {
-            RunApp();
-            //NOTE: run async!
-
-            dbContext = app!.Services.GetService<ContactsDBContext>();
-            LoggerFactory lfactoy = new LoggerFactory();
-            ilog = new Logger<ContactsController>(lfactoy);
-
-
-            Assert.NotNull(dbContext);
-            Assert.NotNull(dbContext.Contacts);
-            Assert.NotNull(dbContext.Skills);
-        }
-
-        [Fact]
         public async Task TestContactController()
         {
-            RunApp();
+            var Utils = new Utils();
+            var app = Utils.PrepareApp();
+            app.RunAsync();
+
 
             dbContext = app!.Services.GetService<ContactsDBContext>();
             LoggerFactory lfactoy = new LoggerFactory();

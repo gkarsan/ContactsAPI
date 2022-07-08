@@ -6,6 +6,8 @@ like person, skills...
 The api uses MS SQL Server database. Before running the first time, ensure the connection string in appsettings.json is set up right for the situation.
 Currerntly, if running in docker, it can't use (localdb) and need path to the server, even if running on local. If running in a windows system with local MS SQL Server or Express, it can work with locladb
 
+# github: 
+
 # API Content
 It has 3 controllers: Contacts, Skills and ContactSkills
 Entry points
@@ -31,15 +33,48 @@ Entry points
 	POST /ContactSkills/UpdateWithSkill{id} : add a skill to a contact id (skill detail in body)
 	DELETE /ContactSkills/Delete{id} : delete a skill to contact relation (but not relatd contacts or skills)
 		
-# Sample data
+# Test data sample
 Add Contact (without skill)
 {
-	"id":0,
-	"firstname":"John",
-	..
+  "id": 0,
+  "firstname": "John",
+  "lastname": "Doe",
+  "fullname": "Mr John Doe",
+  "adderss": "2 steet Avenue",
+  "email": "john@somewhee.com",
+  "mobilePhoneNumber": "+12345"
 }
-Add Contact with skills
+Add Contact with skills (id is ignored at creation and can be omited)
 {
+  "id": 0,
+  "firstname": "John",
+  "lastname": "Doe",
+  "fullname": "Dr John Doe",
+  "adderss": "2 steet Avenue",
+  "email": "john2@somewhee.com",
+  "mobilePhoneNumber": "+12345",
+  "skills": [
+    {
+      "id": 0,
+      "name": "Doing Stuff",
+      "level": 5
+    },
+    {
+      "id": 0,
+      "name": "Undoing Stuff",
+      "level": 6
+    }
+  ]
+}
+Update contact (use existing id from creation)
+{
+  "id": 27,
+  "firstname": "John",
+  "lastname": "Doe",
+  "fullname": "Mr John Doe",
+  "adderss": "2 steet Avenue",
+  "email": "john@somewhee.com",
+  "mobilePhoneNumber": "+12345"
 }
 		
 # Notes
@@ -47,6 +82,6 @@ Developped with Visual Studio 22
 .Net Core 6
 Entity Famework 6
 SwaggerDoc, custom documentation added, including XMLComments fom code
-the Solution contains a xUnit test projects, not complete (having issues with app getting disposed too soon for succesive tests...
+the Solution contains a xUnit test project with some test, which can be run from VisualStudio
 authorisation/authentication:MS Identity included but not enabled. !May cause issue as linked with my account..
 the project contain a query (queryall.sql) usefull to interogate all contacts with linked skills in diectly in database
