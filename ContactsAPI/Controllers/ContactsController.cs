@@ -116,6 +116,7 @@ namespace ContactsAPI.Controllers
         /// <returns></returns>
         [HttpPost("Add")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> AddAsync([FromBody] ContactNoChild c)
         {
