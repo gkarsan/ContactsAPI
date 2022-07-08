@@ -97,7 +97,15 @@ Update contact (use existing id from creation)
   "mobilePhoneNumber": "+12345"
 }
 ```
-		
+Add skill
+```
+{
+  "id": 0,
+  "name": "Testing",
+  "level": 5
+}		
+```
+
 # Notes
 Developped with Visual Studio 22
 .Net Core 6

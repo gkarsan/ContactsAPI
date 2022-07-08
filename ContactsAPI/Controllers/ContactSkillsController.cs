@@ -37,7 +37,6 @@ namespace ContactsAPI.Controllers
         {
             try
             {
-                var list = _context.Contacts!.Include(contact => contact.Skills).Where(c => c.Skills.Count>0);
                 var contactWithSkills = await _context.Contacts!
                     .Include(contact => contact.Skills)
                     .Where(c => c.Skills.Count > 0).ToListAsync();
@@ -101,7 +100,7 @@ namespace ContactsAPI.Controllers
         }
 
         /// <summary>
-        /// link a contact with a skill (providing a new skill)
+        /// link a contact with a skill (providing a new skill details)
         /// </summary>
         /// <param name="idUser"></param>
         /// <param name="skill"></param>
