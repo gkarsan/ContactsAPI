@@ -115,7 +115,37 @@ namespace ContactsAPI.Controllers
         [HttpPost("Add")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> AddAsync(Skill s)
+        public async Task<IActionResult> AddAsync(SkillNoChild s)
+        {
+            try
+            {
+                //checking first if a skill with same name and lefel already exists
+                var existingSkill = await _context.Skills!.FirstOrDefaultAsync(skill => skill.Name == s.Name & skill.Level == s.Level);
+                if (existingSkill is Skill)
+                    return BadRequest($"A skill with same name and level alerrady exists: {existingSkill!.Id}.");
+
+                Skill newSkill = new Skill() { Name = s.Name, Level = s.Level };
+                await _context.Skills!.AddAsync(newSkill);
+                await _context.SaveChangesAsync();
+                return Ok(new SkillNoChild { Id = newSkill.Id, Name = newSkill.Name, Level = newSkill.Level });
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message + e.InnerException?.Message);
+                return Problem(e.Message);
+            }
+
+        }
+
+        /// <summary>
+        /// Add a new skill with optional new contacts.  
+        /// </summary>
+        /// <param name="s">Skill</param>
+        /// <returns></returns>
+        [HttpPost("AddWithContacts")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> AddWithContactAsync(Skill s)
         {
             try
             {
