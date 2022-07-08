@@ -56,8 +56,8 @@ namespace ContactsAPIxUnitTest
             Assert.NotNull(l);
             Assert.True(l.Count > 0);
 
-            //Contact c = new Contact { Firstname = "UnitTest", Lastname = "TestUser", Adderss = "TestAddress", Email = "", Fullname = "Unit Test", MobilePhoneNumber = "0", Skills = new List<Skill> { new Skill { Name = "UnitTesting", Level = 0 } } };
-            ContactNoChild inContact = new ContactNoChild { Firstname = "UnitTest", Lastname = "TestUser", Adderss = "TestAddress", Email = "", Fullname = "Unit Test", MobilePhoneNumber = "0" };
+            //Contact c = new Contact { Firstname = "Test", Lastname = "User", Adderss = "TestAddress", Email = "", Fullname = "Unit Test", MobilePhoneNumber = "0", Skills = new List<Skill> { new Skill { Name = "UnitTesting", Level = 0 } } };
+            ContactNoChild inContact = new ContactNoChild { Firstname = "Test", Lastname = "User", Adderss = "TestAddress", Email = "", Fullname = "Unit Test", MobilePhoneNumber = "0" };
             response = await controller.AddAsync(inContact);
             Assert.True(response is IActionResult);
             Assert.True(response is ObjectResult);
@@ -67,8 +67,6 @@ namespace ContactsAPIxUnitTest
             Assert.True(inContact.Firstname == outContact.Firstname,$"in:{inContact.Firstname}, out:{outContact.Firstname}");
             Assert.NotEqual(inContact.Id, outContact.Id);
 
-            //var c = result.ExecuteResultAsync();
-            //Assert.True(response is Contact);
         }
 
     }
