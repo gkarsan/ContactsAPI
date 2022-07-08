@@ -5,6 +5,20 @@ like person, skills...
 # Initial Project Setup
 The api uses MS SQL Server database. Before running the first time, ensure the connection string in appsettings.json is set up right for the situation.
 Currerntly, if running in docker, it can't use (localdb) and need path to the server, even if running on local. If running in a windows system with local MS SQL Server or Express, it can work with locladb
+a database called ContactDB is ceated the first time, so use need to be authorized to create database
+Default connection string if run in IISExperss on local:
+```
+  "ConnectionStrings": {
+    "ConnectionString": "Server=(localdb)\\MSSQLLocalDB;Initial Catalog=ContactDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False"
+  },
+```
+If run in Docker or to an extenal server using sql user:
+```
+  "ConnectionStrings": {
+    "ConnectionString": "Server=hostserver\\sqlexpress;User ID=sa;Password=mYsAb@DpASSW0D;Database=ContactDB;Connect Timeout=5;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False;"
+  },
+```
+
 
 # [github](https://github.com/gkarsan/ContactsAPI)
 
@@ -86,7 +100,7 @@ Update contact (use existing id from creation)
 # Notes
 Developped with Visual Studio 22
 .Net Core 6
-Entity Famework 6
+Entity Famework 6 (Code first)
 SwaggerDoc, custom documentation added, including XMLComments fom code
 the Solution contains a xUnit test project with some test, which can be run from VisualStudio
 authorisation/authentication:MS Identity included but not enabled. !May cause issue as linked with my account..
