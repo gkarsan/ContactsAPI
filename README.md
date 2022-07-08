@@ -29,7 +29,7 @@ Entry points
 	GET /Contacts/GetAll : Get all contacts (including the corresponding skills)
 	GET /Contacts/GetAllNoChild : Get all contacts (without the corresponding skills)
 	GET /Contacts/GetById{id} : Get one contact (including it's skills)
-	POST /Contacts/Add : Add a contact (in body, it can contain initial skill list)
+	POST /Contacts/Add : Add a contact (in body, it can optionally contain initial skill list)
 	POST /Contacts/AddWithSkills : Add a contact (in body, it cannot contain initial skill list)
 	PUT /Contacts/Update : Update a contact (wip should skill by included, if so how)
 	DELETE /Contacts/Delete{id} : delete a contact (and any reference to skills, but not skills (check))
@@ -37,7 +37,8 @@ Entry points
 	GET /Skills/GetAll : Get all skills (including the corresponding contacts)
 	GET /Skills/GetAllNoChild : Get all skills (without the corresponding contacts)
 	GET /Skills/GetById{id} : Get one contact (including it's associated contacts)
-	POST /Skills/Add : Add a skill(in body, it can optionally contain initial contact list)
+	POST /Skills/Add : Add a skill(in body, it cannot contain initial contact list)
+	POST /Skills/AddWithContacts : Add a skill(in body, it can optionally contain initial contact list)
 	PUT /Skills/Update : update a skill (wip should skill by included, if so how)
 	DELETE /Skills/Delete{id} : delete a skill (and any reference to contacts, but not contacts (check))
 	
@@ -49,7 +50,7 @@ Entry points
 
 #  Some debatable choices I made
 	Provide 2 endpoints for listing Contacts and Skills: 
-		GetAll and GetAllNoChild: one with only contact data, one with embedded skills
+		GetAll and GetAllNoChild: one with only contact/skill data, one with related skills/contacts lists
 	Provide 2 endpoints for adding Contacts and Skills: 
 		Add and AddWith[Skills/Contact]: one with only contact/skill data, one with embedded skills/contact
 	Provide additional sepaat Entripoints to manage rrelations:
